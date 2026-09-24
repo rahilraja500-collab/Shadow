@@ -1,0 +1,39 @@
+name: Build Shadow Arena APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: |
+          unzip -o Shadow_Arena_Android_Project.zip
+          cd ShadowArenaAndroid
+          echo "PROJECT_READY=$(pwd)" >> $GITHUB_ENV
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        working-directory: ShadowArenaAndroid
+        run: gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Shadow-Arena-APK
+          path: ShadowArenaAndroid/app/build/outputs/apk/debug/*.apk
